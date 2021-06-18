@@ -1,6 +1,6 @@
 const textArea = document.getElementById("text-input");
-const coordInput = document.getElementById("coord");
-const valInput = document.getElementById("val");
+const coordInput = document.getElementById("coord"); // example: A1
+const valInput = document.getElementById("val"); // example: 7
 const errorMsg = document.getElementById("error");
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -16,7 +16,7 @@ textArea.addEventListener("input", () => {
 function fillpuzzle(data) {
   let len = data.length < 81 ? data.length : 81;
   for (let i = 0; i < len; i++) {
-    let rowLetter = String.fromCharCode('A'.charCodeAt(0) + Math.floor(i / 9));
+    let rowLetter = String.fromCharCode('A'.charCodeAt(0) + Math.floor(i / 9)); // same as String.fromCharCode(65 + Math.floor(i / 9))
     let col = (i % 9) + 1; 
     if (!data[i] || data[i] === ".") {
       document.getElementsByClassName(rowLetter + col)[0].innerText = " ";
