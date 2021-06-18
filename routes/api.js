@@ -10,8 +10,9 @@ module.exports = function (app) {
   app.route('/api/check')
     .post((req, res) => {
       const puzzleString = req.body.puzzle
-      const row = req.body.coordinate.charAt(0)
-      const column = req.body.coordinate.charAt(1)
+      const coord = req.body.coordinate
+      const row = coord.charAt(0)
+      const column = coord.charAt(1)
       const value = req.body.value
 
       let validate = solver.validate(puzzleString)
@@ -24,6 +25,7 @@ module.exports = function (app) {
 
         let rowCheck = solver.checkRowPlacement(puzzleString, row, value)
         let colCheck = solver.checkColPlacement(puzzleString, column, value)
+        let regionCheck = solver.checkRegionPlacement(puzzleString, coord, value)
 
         let response = { valid: false, conflict: [] }
 
@@ -33,6 +35,9 @@ module.exports = function (app) {
         if (!colCheck) {
           response.conflict.push('column')
         }
+        if (!regionCheck) {
+          response.conflict.push('region')
+        }
 
         if (response.conflict.length === 0) {
           res.json({ valid: true })
@@ -40,10 +45,6 @@ module.exports = function (app) {
           res.json(response)
         }
       }
-
-      // solver.checkColPlacement (puzzleString, row, column, value)
-      // solver.checkColPlacement (puzzleString, row, column, value)
-      // solver.checkRegionPlacement (puzzleString, row, column, value)
 
       // sample json responses expected by index.js fetch:
       // { "valid": false, "conflict": [ "row", "column", "region" ] }
