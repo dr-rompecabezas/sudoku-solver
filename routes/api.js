@@ -12,6 +12,7 @@ module.exports = function (app) {
 
       if (!req.body.puzzle || !req.body.coordinate || !req.body.value) {
         res.json({ error: 'Required field(s) missing' })
+        return
       }
 
       const puzzleString = req.body.puzzle
@@ -20,15 +21,40 @@ module.exports = function (app) {
       const column = coord.charAt(1)
       const value = req.body.value.toString()
 
+      if (row.charCodeAt(0) < 65 
+          || row.charCodeAt(0) > 73 
+          || column < 1 
+          || coord.length > 2) {
+        res.json({ error: 'Invalid coordinate' })
+        return
+      }
+
+      let regex = /[1-9]/
+      if (!regex.test(value)) {
+        res.json({ error: 'Invalid value' })
+        return
+      }
+
       let validate = solver.validate(puzzleString)
 
       if (validate.error !== 'valid') {
         res.json(validate)
       } else if (validate.error === 'valid') {
 
-        let rowCheck = solver.checkRowPlacement(puzzleString, row, value)
-        let columnCheck = solver.checkColPlacement(puzzleString, column, value)
-        let regionCheck = solver.checkRegionPlacement(puzzleString, coord, value)
+        let valueIndex = row.charCodeAt(0) + 7;
+        valueIndex = valueIndex % 9 * 9;
+        valueIndex = valueIndex + parseInt(column) - 1;
+        let newPuzzleString = puzzleString
+
+        if (newPuzzleString.charAt(valueIndex) === value) {
+          let splitPuzzle = newPuzzleString.split('')
+          splitPuzzle[valueIndex] = '.'
+          newPuzzleString = splitPuzzle.join('')
+        }
+
+        let rowCheck = solver.checkRowPlacement(newPuzzleString, row, value)
+        let columnCheck = solver.checkColPlacement(newPuzzleString, column, value)
+        let regionCheck = solver.checkRegionPlacement(newPuzzleString, coord, value)
 
         let response = { valid: false, conflict: [] }
 
@@ -55,11 +81,12 @@ module.exports = function (app) {
 
       if (!req.body.puzzle) {
         res.json({ error: 'Required field missing' })
+        return
       }
 
-      const puzzleString = req.body.puzzle 
+      const puzzleString = req.body.puzzle
       let validate = solver.validate(puzzleString)
-      
+
       if (validate.error !== 'valid') {
         res.json(validate)
       } else if (validate.error === 'valid') {
@@ -67,7 +94,7 @@ module.exports = function (app) {
         if (solution.error === 'Puzzle cannot be solved') {
           res.json(solution)
         } else {
-          res.json({solution})
+          res.json({ solution })
         }
       }
     });
