@@ -118,7 +118,7 @@ class SudokuSolver {
             let columnCheck = this.checkColPlacement(solution, column, value)
             let regionCheck = this.checkRegionPlacement(solution, coord, value)
   
-            console.log(coord + ' index: ' + i + '; value: ' + value + '; rowCheck: ' + rowCheck + '; colCheck: ' + columnCheck + '; regionCheck: ' + regionCheck)
+            // console.log(coord + ' index: ' + i + '; value: ' + value + '; rowCheck: ' + rowCheck + '; colCheck: ' + columnCheck + '; regionCheck: ' + regionCheck)
   
             if (rowCheck && columnCheck && regionCheck) {
               
@@ -148,7 +148,7 @@ class SudokuSolver {
       }
     }
 
-    console.log('solution string: ' + solution)
+    // console.log('solution string: ' + solution)
     return solution
   }
 }

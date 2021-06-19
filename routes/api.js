@@ -9,6 +9,11 @@ module.exports = function (app) {
 
   app.route('/api/check')
     .post((req, res) => {
+
+      if (!req.body.puzzle || !req.body.coordinate || !req.body.value) {
+        res.json({ error: 'Required field(s) missing' })
+      }
+
       const puzzleString = req.body.puzzle
       const coord = req.body.coordinate.toUpperCase()
       const row = coord.charAt(0)
@@ -47,6 +52,11 @@ module.exports = function (app) {
 
   app.route('/api/solve')
     .post((req, res) => {
+
+      if (!req.body.puzzle) {
+        res.json({ error: 'Required field missing' })
+      }
+
       const puzzleString = req.body.puzzle 
       let validate = solver.validate(puzzleString)
       
@@ -54,7 +64,6 @@ module.exports = function (app) {
         res.json(validate)
       } else if (validate.error === 'valid') {
         let solution = solver.solve(puzzleString)
-        console.log(solution)
         if (solution.error === 'Puzzle cannot be solved') {
           res.json(solution)
         } else {
