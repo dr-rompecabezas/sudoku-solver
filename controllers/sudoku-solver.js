@@ -1,23 +1,29 @@
 class SudokuSolver {
 
   validate(puzzleString) {
-    // { "error": "Invalid characters in puzzle" }
-    // { "error": "Expected puzzle to be 81 characters long" }
+    
+    let error = {error: 'valid'}
+    let regex = /[1-9|\.]{81}/
+
     if (puzzleString.length !== 81) {
-      return false
-    } else {
-      return true
+      error.error = "Expected puzzle to be 81 characters long"
+    } else if (!regex.test(puzzleString)) {
+      error.error = "Invalid characters in puzzle"
     }
+    return error
   }
 
   checkRowPlacement(puzzleString, row, value) {
-    row.toUpperCase()
+    
+    value = value.toString()
+    row = row.toUpperCase()
     let rowIndex = row.charCodeAt(0) + 7
     rowIndex = (rowIndex % 9) * 9
     let n = rowIndex + 9
-    value = value.toString()
+    
 
     for (let i = rowIndex; i < n; i++) {
+      // console.log('value: ' + value + '; index: ' + i)
       if (puzzleString.charAt(i) === value) {
         return false
       }
@@ -26,10 +32,10 @@ class SudokuSolver {
   }
 
   checkColPlacement(puzzleString, column, value) {
-    column = +column
+    
+    value = value.toString()
     let colIndex = column - 1
     let len = puzzleString.length
-    value = value.toString()
 
     for (let i = colIndex; i < len; i += 9) {
       if (puzzleString.charAt(i) === value) {
@@ -41,6 +47,7 @@ class SudokuSolver {
 
   checkRegionPlacement(puzzleString, coord, value) {
 
+    coord = coord.toUpperCase()
     value = value.toString()
 
     let regionChars = [
@@ -85,6 +92,64 @@ class SudokuSolver {
 
   solve(puzzleString) {
 
+    let splitPuzzle = puzzleString.split('')
+    let solution = splitPuzzle.join('')
+
+    let update = (index, value) => {
+      splitPuzzle[index] = value.toString()
+      solution = splitPuzzle.join('')
+    }
+
+    let validCount = 0;
+    let validValue = [];
+    let totalSolved = 0;
+
+    while (splitPuzzle.includes('.')) {
+      for (let i = 0; i < 81; i++) {
+        let row = String.fromCharCode('A'.charCodeAt(0) + Math.floor(i / 9))
+        let column = (i % 9) + 1
+        let coord = '' + row + column
+  
+        if (solution.charAt(i) === ".") {
+          
+          for (let value = 1; value < 10; value++) {
+  
+            let rowCheck = this.checkRowPlacement(solution, row, value)
+            let columnCheck = this.checkColPlacement(solution, column, value)
+            let regionCheck = this.checkRegionPlacement(solution, coord, value)
+  
+            console.log(coord + ' index: ' + i + '; value: ' + value + '; rowCheck: ' + rowCheck + '; colCheck: ' + columnCheck + '; regionCheck: ' + regionCheck)
+  
+            if (rowCheck && columnCheck && regionCheck) {
+              
+              validCount++
+              validValue.push(value)
+              // console.log(coord + ' index: ' + i + '; valid value: ' + value + '; validCount: ' + validCount)
+            }
+  
+            if (value === 9 && validCount === 1) {
+              // console.log('Update at coord ' + coord + ', index: ' + i + '; value: ' + validValue[0])
+              update(i,validValue[0])
+              totalSolved++
+              validCount = 0
+              validValue = []
+            } else if (value === 9 && validCount > 1) {
+              // console.log('Coordinate ' + coord + ' has ' + validCount + ' possible solutions: ' + validValue)
+              validCount = 0
+              validValue = []
+            }
+          }
+        }
+      }
+      if (totalSolved === 0) {
+        return {error: 'Puzzle cannot be solved'}
+      } else {
+        totalSolved = 0
+      }
+    }
+
+    console.log('solution string: ' + solution)
+    return solution
   }
 }
 
